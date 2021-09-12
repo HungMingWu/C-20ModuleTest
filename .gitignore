@@ -1,0 +1,7 @@
+.vs/
+Debug/
+ModuleTest/Debug/
+ModuleTest/ModuleTest.vcxproj.filters
+ModuleTest/ModuleTest.vcxproj.user
+ModuleTest/Release/
+Release/
