@@ -62,6 +62,10 @@ export namespace small {
         std::is_constructible<value_type, typename std::iterator_traits<I>::reference>::value,
         I>;
 
+    template <class I, class value_type>
+    concept constructible_input_iterator = is_input_iterator<I>::value &&
+        std::is_constructible<value_type, typename std::iterator_traits<I>::reference>::value;
+
     template <class I> constexpr bool is_input_iterator_v = is_input_iterator<I>::value;
 
     /// Common iterator category primary template.

@@ -368,8 +368,10 @@ namespace small {
 
           /// \brief Construct small array from a pair of iterators
           template <class Iterator>
-          constexpr vector(Iterator first, enable_if_iterator_t<Iterator, value_type> last,
-              const allocator_type& alloc = allocator_type()) {
+          constexpr vector(Iterator first, Iterator last,
+              const allocator_type& alloc = allocator_type()) 
+          requires (constructible_input_iterator<Iterator, value_type>)
+          {
               enable_allocator_type::set_allocator(alloc);
               // Handle input iterators
               constexpr bool is_input_iterator =
@@ -407,7 +409,7 @@ namespace small {
 
           /// \brief Construct small array from a range
           /// This range might also be a std::vector
-          template <class Range, std::enable_if_t<is_range_v<Range>, int> = 0>
+          template <range Range>
           constexpr explicit vector(Range&& r, const allocator_type& alloc = allocator_type())
               : vector(r.begin(), r.end(), alloc) {}
 
@@ -419,7 +421,9 @@ namespace small {
 
           /// \brief Assign small array from iterators
           template <class InputIterator>
-          constexpr void assign(InputIterator first, enable_if_iterator_t<InputIterator, value_type> last) {
+          constexpr void assign(InputIterator first, InputIterator last) 
+          requires (constructible_input_iterator<InputIterator, value_type>)
+          {
               clear();
               insert(end(), first, last);
           }
@@ -806,8 +810,9 @@ namespace small {
 
           /// \brief Copy element range stating at a position in small array
           template <class Iterator>
-          constexpr iterator insert(const_iterator position, Iterator first,
-              enable_if_iterator_t<Iterator, value_type> last) {
+          constexpr iterator insert(const_iterator position, Iterator first, Iterator last)
+          requires (constructible_input_iterator<Iterator, value_type>)
+          {
               // Handle input iterators
               using category = typename std::iterator_traits<Iterator>::iterator_category;
               using it_ref = typename std::iterator_traits<Iterator>::reference;
@@ -972,18 +977,17 @@ namespace small {
               }
           }
 
-          /// \brief Copy the inline storage from rhs vector when type is trivially copyable
-          template <class T2 = value_type, std::enable_if_t<std::is_trivially_copyable_v<T2>, int> = 0>
+          /// \brief Copy the inline storage from rhs vector
+          template <class T2 = value_type>
           void copy_inline_trivial(vector const& rhs) {
-              // Copy the whole buffer to maintain the loop with fixed size
-              std::copy(rhs.data_.buffer(), rhs.data_.buffer() + num_inline_elements, data_.buffer());
-              this->set_internal_size(rhs.size());
-          }
-
-          /// \brief Copy the inline storage from rhs vector when type is not trivially copyable
-          template <class T2 = value_type, std::enable_if_t<!std::is_trivially_copyable_v<T2>, int> = 0>
-          void copy_inline_trivial(vector const&) {
-              throw std::logic_error("Attempting to trivially copy not trivially copyable type");
+              if constexpr (std::is_trivially_copyable_v<T2>) {
+                  // Copy the whole buffer to maintain the loop with fixed size
+                  std::copy(rhs.data_.buffer(), rhs.data_.buffer() + num_inline_elements, data_.buffer());
+                  this->set_internal_size(rhs.size());
+              }
+              else {
+                  throw std::logic_error("Attempting to trivially copy not trivially copyable type");
+              }
           }
 
           /// \brief Make it empty and with no heap

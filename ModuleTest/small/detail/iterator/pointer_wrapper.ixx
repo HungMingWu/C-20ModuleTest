@@ -99,7 +99,9 @@ export namespace small
         /// \brief Get distance between iterators
         template <class Iter1, class Iter2>
         constexpr friend auto operator-(const pointer_wrapper<Iter1>& x, const pointer_wrapper<Iter2>& y) noexcept
-            -> decltype(x.base() - y.base());
+            -> decltype(x.base() - y.base()) {
+            return x.base() - y.base();
+        }
 
         /// \brief Sum iterators
         template <class Iter1>
@@ -214,12 +216,6 @@ export namespace small
     template <class Iter, class BaseIter>
     inline constexpr bool operator<=(const BaseIter& x, const pointer_wrapper<Iter>& y) noexcept {
         return !(y < x);
-    }
-
-    template <class Iter1, class Iter2>
-    inline constexpr auto operator-(const pointer_wrapper<Iter1>& x, const pointer_wrapper<Iter2>& y) noexcept
-        -> decltype(x.base() - y.base()) {
-        return x.base() - y.base();
     }
 
     template <class Iter>
