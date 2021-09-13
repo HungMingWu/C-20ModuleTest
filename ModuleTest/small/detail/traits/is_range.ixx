@@ -15,5 +15,4 @@ namespace small {
     /// True if type is a range (has begin() and end() functions)
     export
     template <typename T> constexpr bool is_range_v = is_range<std::decay_t<T>>::value;
-
 }

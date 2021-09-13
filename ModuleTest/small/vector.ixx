@@ -407,8 +407,9 @@ namespace small {
 
           /// \brief Construct small array from a range
           /// This range might also be a std::vector
-          template <class Range, std::enable_if_t<is_range_v<Range>, int> = 0>
+          template <typename Range>
           constexpr explicit vector(Range&& r, const allocator_type& alloc = allocator_type())
+          requires (is_range_v<Range>)
               : vector(r.begin(), r.end(), alloc) {}
 
           /// \brief Assign small array from initializer list
